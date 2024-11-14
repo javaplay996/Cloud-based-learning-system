@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.KejianDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.kejian_name as kejianName
+        ,a.kejian_types as kejianTypes
+        ,a.kejian_photo as kejianPhoto
+        ,a.kejian_file as kejianFile
+        ,a.kejian_content as kejianContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.KejianView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM kejian  a
+
+        <where>
+            <if test=" params.kejianName != '' and params.kejianName != null and params.kejianName != 'null' ">
+                and a.kejian_name like CONCAT('%',#{params.kejianName},'%')
+            </if>
+            <if test="params.kejianTypes != null">
+                and a.kejian_types = #{params.kejianTypes}
+            </if>
+            <if test=" params.kejianContent != '' and params.kejianContent != null and params.kejianContent != 'null' ">
+                and a.kejian_content like CONCAT('%',#{params.kejianContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
